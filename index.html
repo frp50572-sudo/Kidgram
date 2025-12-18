@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مراسلة فورية</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            height: 90vh;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            display: flex;
+        }
+        
+        /* الشريط الجانبي */
+        .sidebar {
+            width: 300px;
+            background: #2c3e50;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #34495e;
+        }
+        
+        .user-info {
+            padding: 25px;
+            background: #1a252f;
+            text-align: center;
+        }
+        
+        .avatar {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .username {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .status {
+            font-size: 12px;
+            color: #2ecc71;
+            margin-top: 5px;
+        }
+        
+        .search-box {
+            padding: 15px;
+            background: #34495e;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 20px;
+            background: #2c3e50;
+            color: white;
+            font-size: 14px;
+        }
+        
+        .users-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .user-item {
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: background 0.3s;
+            border-bottom: 1px solid #34495e;
+        }
+        
+        .user-item:hover {
+            background: #34495e;
+        }
+        
+        .user-item.active {
+            background: #3498db;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: #3498db;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+        
+        .user-details {
+            flex: 1;
+        }
+        
+        .user-name {
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .last-message {
+            font-size: 12px;
+            color: #bdc3c7;
+            margin-top: 3px;
+        }
+        
+        /* منطقة المحادثة */
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-header {
+            padding: 20px 25px;
+            background: white;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .chat-user {
+            display: flex;
+            align-items: center;
+        }
+        
+        .chat-user-avatar {
+            width: 45px;
+            height: 45px;
+            background: #2ecc71;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .chat-user-info h3 {
+            font-size: 16px;
+        }
+        
+        .chat-user-info p {
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+        
+        .chat-actions button {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+            font-size: 14px;
+        }
+        
+        .messages-container {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+        
+        .message {
+            margin-bottom: 20px;
+            display: flex;
+        }
+        
+        .message.sent {
+            justify-content: flex-end;
+        }
+        
+        .message-content {
+            max-width: 70%;
+            padding: 12px 18px;
+            border-radius: 18px;
+            position: relative;
+            word-wrap: break-word;
+        }
+        
+        .message.received .message-content {
+            background: white;
+            border: 1px solid #eee;
+            border-top-left-radius: 5px;
+        }
+        
+        .message.sent .message-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-top-right-radius: 5px;
+        }
+        
+        .message-time {
+            font-size: 11px;
+            color: #95a5a6;
+            margin-top: 5px;
+            text-align: right;
+        }
+        
+        .message-input {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+        
+        .message-input input {
+            flex: 1;
+            padding: 12px 20px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+        }
+        
+        .send-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            margin-left: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: transform 0.3s;
+        }
+        
+        .send-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        /* شاشة الدخول */
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .login-header h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .login-header p {
+            color: #7f8c8d;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+        
+        .form-group input:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s;
+            margin-top: 10px;
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .register-link {
+            text-align: center;
+            margin-top: 20px;
+            color: #7f8c8d;
+        }
+        
+        .register-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        /* مخفي */
+        .hidden {
+            display: none !important;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                height: 100vh;
+                border-radius: 0;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: 40%;
+            }
+            
+            .chat-area {
+                height: 60%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- شاشة الدخول -->
+    <div id="loginScreen" class="login-container">
+        <div class="login-header">
+            <h1>🚀 مراسلة فورية</h1>
+            <p>تواصل مع أصدقائك في أي وقت</p>
+        </div>
+        
+        <div class="form-group">
+            <label for="loginUsername">اسم المستخدم</label>
+            <input type="text" id="loginUsername" placeholder="أدخل اسمك">
+        </div>
+        
+        <div class="form-group">
+            <label for="roomCode">كود الغرفة</label>
+            <input type="text" id="roomCode" placeholder="أدخل كود الغرفة (اختياري)">
+            <small style="color: #7f8c8d; font-size: 12px;">اتركه فارغاً لإنشاء غرفة جديدة</small>
+        </div>
+        
+        <button onclick="joinChat()" class="login-btn">انضم للدردشة</button>
+        
+        <div class="register-link">
+            <p>شارك كود الغرفة مع أصدقائك للانضمام</p>
+        </div>
+    </div>
+    
+    <!-- شاشة الدردشة -->
+    <div id="chatScreen" class="container hidden">
+        <!-- الشريط الجانبي -->
+        <div class="sidebar">
+            <div class="user-info">
+                <div class="avatar" id="userAvatar">?</div>
+                <div class="username" id="currentUsername">مستخدم</div>
+                <div class="status">🟢 متصل الآن</div>
+            </div>
+            
+            <div class="search-box">
+                <input type="text" placeholder="🔍 ابحث عن مستخدم...">
+            </div>
+            
+            <div class="users-list" id="usersList">
+                <!-- المستخدمون يظهرون هنا -->
+            </div>
+        </div>
+        
+        <!-- منطقة المحادثة -->
+        <div class="chat-area">
+            <div class="chat-header">
+                <div class="chat-user">
+                    <div class="chat-user-avatar" id="chatUserAvatar">?</div>
+                    <div class="chat-user-info">
+                        <h3 id="chatWithUser">اختر محادثة</h3>
+                        <p id="userStatus">غير متصل</p>
+                    </div>
+                </div>
+                
+                <div class="chat-actions">
+                    <button onclick="copyRoomCode()">📋 نسخ الكود</button>
+                    <button onclick="leaveChat()">🚪 خروج</button>
+                </div>
+            </div>
+            
+            <div class="messages-container" id="messagesContainer">
+                <!-- الرسائل تظهر هنا -->
+                <div class="welcome-message">
+                    <div class="message">
+                        <div class="message-content">
+                            👋 مرحباً! يمكنك بدء محادثة جديدة عن طريق اختيار مستخدم من القائمة على اليسار.
+                            <div class="message-time">الآن</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="message-input">
+                <input type="text" id="messageInput" placeholder="اكتب رسالتك هنا..." onkeypress="handleKeyPress(event)">
+                <button class="send-btn" onclick="sendMessage()">➤</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // المتغيرات العامة
+        let currentUser = '';
+        let currentRoom = '';
+        let peer = null;
+        let connections = {};
+        let currentChatUser = null;
+        let messages = {};
+        
+        // دالة الانضمام للدردشة
+        function joinChat() {
+            const username = document.getElementById('loginUsername').value.trim();
+            let roomCode = document.getElementById('roomCode').value.trim();
+            
+            if (!username) {
+                alert('الرجاء إدخال اسم المستخدم');
+                return;
+            }
+            
+            currentUser = username;
+            
+            // إنشاء كود غرفة عشوائي إذا لم يتم إدخاله
+            if (!roomCode) {
+                roomCode = generateRoomCode();
+                alert(`✅ تم إنشاء غرفة جديدة\nالكود: ${roomCode}\nشارك هذا الكود مع أصدقائك للانضمام`);
+            }
+            
+            currentRoom = roomCode;
+            
+            // الانتقال لشاشة الدردشة
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('chatScreen').classList.remove('hidden');
+            
+            // تحديث معلومات المستخدم
+            document.getElementById('currentUsername').textContent = currentUser;
+            document.getElementById('userAvatar').textContent = currentUser.charAt(0).toUpperCase();
+            
+            // تهيئة WebRTC
+            initWebRTC();
+            
+            // تحديث عنوان الغرفة
+            document.getElementById('chatWithUser').textContent = `غرفة: ${roomCode}`;
+        }
+        
+        // إنشاء كود غرفة عشوائي
+        function generateRoomCode() {
+            return Math.random().toString(36).substring(2, 8).toUpperCase();
+        }
+        
+        // نسخ كود الغرفة
+        function copyRoomCode() {
+            navigator.clipboard.writeText(currentRoom)
+                .then(() => alert('✅ تم نسخ كود الغرفة'))
+                .catch(() => alert('❌ تعذر نسخ الكود'));
+        }
+        
+        // تهيئة WebRTC
+        function initWebRTC() {
+            // هذا تطبيق مبسط، في التطبيق الحقيقي تحتاج لـ Signaling Server
+            
+            // محاكاة اتصال بين المستخدمين (للتجربة المحلية)
+            simulateConnection();
+        }
+        
+        // محاكاة اتصال للمستخدمين (للتجربة)
+        function simulateConnection() {
+            // بيانات وهمية للمستخدمين
+            const mockUsers = [
+                { id: 'user1', name: 'أحمد', avatar: 'أ', online: true },
+                { id: 'user2', name: 'سارة', avatar: 'س', online: true },
+                { id: 'user3', name: 'محمد', avatar: 'م', online: false },
+                { id: 'user4', name: 'فاطمة', avatar: 'ف', online: true }
+            ];
+            
+            // عرض المستخدمين
+            updateUsersList(mockUsers);
+            
+            // إضافة بعض الرسائل الوهمية
+            messages['user1'] = [
+                { sender: 'أحمد', text: 'مرحباً! كيف الحال؟', time: '10:30', sent: false },
+                { sender: currentUser, text: 'أهلاً أحمد! كل شيء بخير، وأنت؟', time: '10:32', sent: true }
+            ];
+            
+            messages['user2'] = [
+                { sender: 'سارة', text: 'هل انتهيت من المهمة؟', time: '09:15', sent: false },
+                { sender: currentUser, text: 'نعم، سأرسلها لك الآن', time: '09:20', sent: true }
+            ];
+        }
+        
+        // تحديث قائمة المستخدمين
+        function updateUsersList(users) {
+            const usersList = document.getElementById('usersList');
+            usersList.innerHTML = '';
+            
+            users.forEach(user => {
+                const userDiv = document.createElement('div');
+                userDiv.className = 'user-item';
+                userDiv.onclick = () => selectUser(user);
+                
+                userDiv.innerHTML = `
+                    <div class="user-avatar" style="background: ${getRandomColor()}">${user.avatar}</div>
+                    <div class="user-details">
+                        <div class="user-name">${user.name}</div>
+                        <div class="last-message">${user.online ? '🟢 متصل' : '⚫ غير متصل'}</div>
+                    </div>
+                `;
+                
+                usersList.appendChild(userDiv);
+            });
+        }
+        
+        // اختيار مستخدم للمحادثة
+        function selectUser(user) {
+            currentChatUser = user;
+            
+            // تحديث رأس المحادثة
+            document.getElementById('chatWithUser').textContent = user.name;
+            document.getElementById('chatUserAvatar').textContent = user.avatar;
+            document.getElementById('userStatus').textContent = user.online ? '🟢 متصل الآن' : '⚫ غير متصل';
+            
+            // عرض الرسائل
+            displayMessages(user.id);
+            
+            // إضافة نشاط للمستخدم المختار
+            document.querySelectorAll('.user-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+        }
+        
+        // عرض الرسائل
+        function displayMessages(userId) {
+            const container = document.getElementById('messagesContainer');
+            container.innerHTML = '';
+            
+            if (messages[userId]) {
+                messages[userId].forEach(msg => {
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = `message ${msg.sent ? 'sent' : 'received'}`;
+                    
+                    messageDiv.innerHTML = `
+                        <div class="message-content">
+                            ${msg.text}
+                            <div class="message-time">${msg.time}</div>
+                        </div>
+                    `;
+                    
+                    container.appendChild(messageDiv);
+                });
+            } else {
+                container.innerHTML = `
+                    <div class="message">
+                        <div class="message-content">
+                            💬 لا توجد رسائل سابقة. ابدأ محادثة جديدة!
+                            <div class="message-time">الآن</div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // التمرير للأسفل
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        // إرسال رسالة
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const messageText = input.value.trim();
+            
+            if (!messageText || !currentChatUser) {
+                alert('اختر محادثة واكتب رسالة!');
+                return;
+            }
+            
+            // إضافة الرسالة للقائمة
+            if (!messages[currentChatUser.id]) {
+                messages[currentChatUser.id] = [];
+            }
+            
+            const newMessage = {
+                sender: currentUser,
+                text: messageText,
+                time: getCurrentTime(),
+                sent: true
+            };
+            
+            messages[currentChatUser.id].push(newMessage);
+            
+            // إضافة رد وهمي (للتجربة)
+            if (currentChatUser.online) {
+                setTimeout(() => {
+                    const responses = [
+                        'مرحباً!',
+                        'كيف الحال؟',
+                        'أنا بخير، شكراً!',
+                        'ماذا تفعل؟',
+                        'هل تريد التحدث عن شيء محدد؟'
+                    ];
+                    
+                    const randomResponse = responses[Ma
